@@ -1,6 +1,12 @@
 package cards
 
-import "log"
+import (
+	"errors"
+	"log"
+
+	errx "github.com/xandervanderweken/GoHomeNet/internal/errors"
+	"gorm.io/gorm"
+)
 
 type Service interface {
 	CreateCard(request CreateCardRequest) (*CardDto, error)
@@ -16,15 +22,18 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) CreateCard(request CreateCardRequest) (*CardDto, error) {
+	log.Println("Adding a new card to the repository")
+
 	card := &Card{
 		Name:    request.Name,
 		DueDate: request.DueDate,
 	}
 
 	if err := s.repo.CreateCard(card); err != nil {
-		return nil, err
+		return nil, errx.ErrInternalServer
 	}
 
+	log.Println("Card created successfully:", card.ID)
 	return &CardDto{
 		ID:      card.ID,
 		Name:    card.Name,
@@ -38,7 +47,10 @@ func (s *service) GetAllCards() ([]CardDto, error) {
 	cards, err := s.repo.GetAllCards()
 
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrInvalidDB) {
+			log.Println("Database connection error:", err)
+			return nil, errx.ErrInternalServer
+		}
 	}
 
 	cardDtos := make([]CardDto, 0, len(cards))

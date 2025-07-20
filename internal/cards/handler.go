@@ -3,6 +3,8 @@ package cards
 import (
 	"encoding/json"
 	"net/http"
+
+	errx "github.com/xandervanderweken/GoHomeNet/internal/errors"
 )
 
 type CardHandler struct {
@@ -16,7 +18,7 @@ func NewHandler(service Service) *CardHandler {
 func (h *CardHandler) GetAllCards(w http.ResponseWriter, r *http.Request) {
 	cards, err := h.service.GetAllCards()
 	if err != nil {
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		errx.RespondError(w, err)
 		return
 	}
 
@@ -26,13 +28,13 @@ func (h *CardHandler) GetAllCards(w http.ResponseWriter, r *http.Request) {
 func (h *CardHandler) CreateCard(w http.ResponseWriter, r *http.Request) {
 	var req CreateCardRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		errx.RespondError(w, errx.ErrValidation)
 		return
 	}
 
 	cardDto, err := h.service.CreateCard(req)
 	if err != nil {
-		http.Error(w, "Failed to create card", http.StatusInternalServerError)
+		errx.RespondError(w, err)
 		return
 	}
 
