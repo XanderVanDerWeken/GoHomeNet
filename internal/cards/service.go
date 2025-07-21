@@ -11,6 +11,7 @@ import (
 type Service interface {
 	GetAllCards() ([]CardDto, error)
 	CreateCard(request CreateCardRequest) (*CardDto, error)
+	DeleteCard(id uint) error
 }
 
 type service struct {
@@ -63,4 +64,17 @@ func (s *service) CreateCard(request CreateCardRequest) (*CardDto, error) {
 		Name:    card.Name,
 		DueDate: card.DueDate,
 	}, nil
+}
+
+func (s *service) DeleteCard(id uint) error {
+	log.Println("Deleting card with ID:", id)
+
+	err := s.repo.DeleteCard(id)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Println("Card not found for deletion:", id)
+		return errx.ErrNotFound
+	}
+
+	return err
 }

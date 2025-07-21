@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 type Repository interface {
 	GetAllCards() ([]Card, error)
 	CreateCard(card *Card) error
+	DeleteCard(id uint) error
 }
 
 type repository struct {
@@ -25,4 +26,8 @@ func (r *repository) GetAllCards() ([]Card, error) {
 
 func (r *repository) CreateCard(card *Card) error {
 	return r.db.Create(card).Error
+}
+
+func (r *repository) DeleteCard(id uint) error {
+	return r.db.Delete(&Card{}, id).Error
 }

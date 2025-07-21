@@ -48,6 +48,20 @@ func TestCreateCard(t *testing.T) {
 	}
 }
 
+func TestDeleteCard(t *testing.T) {
+	// Arrange
+	mockRepo := newMockRepository()
+	service := NewService(mockRepo)
+
+	// Act
+	err := service.DeleteCard(1)
+
+	// Assert
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
 func newMockRepository() *mockRepository {
 	return &mockRepository{}
 }
@@ -64,5 +78,9 @@ func (m *mockRepository) GetAllCards() ([]Card, error) {
 }
 
 func (m *mockRepository) CreateCard(card *Card) error {
+	return nil
+}
+
+func (m *mockRepository) DeleteCard(id uint) error {
 	return nil
 }
