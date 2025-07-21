@@ -1,9 +1,13 @@
 package chores
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Chore struct {
-	ID          uint      `gorm:"primaryKey"`
+	gorm.Model
 	Name        string    `gorm:"not null"`
 	Description *string   `gorm:"null"`
 	DueDate     time.Time `gorm:"not null"`

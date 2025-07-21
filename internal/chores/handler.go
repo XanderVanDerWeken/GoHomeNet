@@ -5,15 +5,15 @@ import (
 	"net/http"
 )
 
-type ChoreHandler struct {
-	choreService ChoreService
+type Handler struct {
+	choreService Service
 }
 
-func NewChoreHandler(service ChoreService) *ChoreHandler {
-	return &ChoreHandler{choreService: service}
+func NewHandler(service Service) *Handler {
+	return &Handler{choreService: service}
 }
 
-func (h *ChoreHandler) GetAllChores(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetAllChores(w http.ResponseWriter, r *http.Request) {
 	chores, err := h.choreService.GetAllChores()
 	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)

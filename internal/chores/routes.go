@@ -6,9 +6,9 @@ import (
 )
 
 func RegisterRoutes(r chi.Router, db *gorm.DB) {
-	repo := NewChoreRepository(db)
-	service := NewChoreService(repo)
-	handler := NewChoreHandler(service)
+	repo := NewRepository(db)
+	service := NewService(repo)
+	handler := NewHandler(service)
 
 	r.Get("/chores", handler.GetAllChores)
 }

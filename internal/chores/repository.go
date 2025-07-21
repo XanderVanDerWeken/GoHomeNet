@@ -2,20 +2,20 @@ package chores
 
 import "gorm.io/gorm"
 
-type ChoreRepository interface {
+type Repository interface {
 	GetAllChores() ([]Chore, error)
 	CreateChore(newChore *Chore) error
 }
 
-type choreRepository struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func NewChoreRepository(db *gorm.DB) ChoreRepository {
-	return &choreRepository{db: db}
+func NewRepository(db *gorm.DB) Repository {
+	return &repository{db: db}
 }
 
-func (r *choreRepository) GetAllChores() ([]Chore, error) {
+func (r *repository) GetAllChores() ([]Chore, error) {
 	var chores []Chore
 	if err := r.db.Find(&chores).Error; err != nil {
 		return nil, err
@@ -23,6 +23,6 @@ func (r *choreRepository) GetAllChores() ([]Chore, error) {
 	return chores, nil
 }
 
-func (r *choreRepository) CreateChore(newChore *Chore) error {
+func (r *repository) CreateChore(newChore *Chore) error {
 	return r.db.Create(newChore).Error
 }
