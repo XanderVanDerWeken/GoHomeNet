@@ -12,4 +12,5 @@ func RegisterRoutes(r chi.Router, db *gorm.DB) {
 
 	r.Get("/cards", handler.GetAllCards)
 	r.Post("/cards", handler.CreateCard)
+	r.Delete("/cards/{cardId}", handler.DeleteCard)
 }
