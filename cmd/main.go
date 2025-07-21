@@ -20,8 +20,16 @@ func main() {
 	db.AutoMigrate(&chores.Chore{}, &cards.Card{}, &users.User{})
 
 	r := chi.NewRouter()
-	chores.RegisterRoutes(r, db)
-	cards.RegisterRoutes(r, db)
+
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/chores", func(r chi.Router) {
+			chores.RegisterRoutes(r, db)
+		})
+
+		r.Route("/cards", func(r chi.Router) {
+			cards.RegisterRoutes(r, db)
+		})
+	})
 
 	port := config.AppConfig.Server.Port
 	addr := fmt.Sprintf(":%d", port)

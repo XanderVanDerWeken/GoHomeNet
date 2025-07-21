@@ -10,5 +10,6 @@ func RegisterRoutes(r chi.Router, db *gorm.DB) {
 	service := NewService(repo)
 	handler := NewHandler(service)
 
-	r.Get("/chores", handler.GetAllChores)
+	r.Get("/", handler.GetAllChores)
+	r.Post("/", handler.CreateChore)
 }

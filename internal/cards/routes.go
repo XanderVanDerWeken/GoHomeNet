@@ -10,7 +10,7 @@ func RegisterRoutes(r chi.Router, db *gorm.DB) {
 	service := NewService(repo)
 	handler := NewHandler(service)
 
-	r.Get("/cards", handler.GetAllCards)
-	r.Post("/cards", handler.CreateCard)
-	r.Delete("/cards/{cardId}", handler.DeleteCard)
+	r.Get("/", handler.GetAllCards)
+	r.Post("/", handler.CreateCard)
+	r.Delete("/{cardId}", handler.DeleteCard)
 }
