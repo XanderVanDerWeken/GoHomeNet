@@ -1,5 +1,5 @@
 build:
-	go build -o bin/main cmd/gohomenet/main.go
+	go build -o bin/main cmd/main.go
 
 run:
-	go run cmd/gohomenet/main.go
+	go run cmd/main.go
