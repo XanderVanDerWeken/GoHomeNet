@@ -20,22 +20,23 @@ func main() {
 	db := database.Connect()
 	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{})
 
-	// Add User Repository and Service
+	// Add Users Module
 	userRepo := users.NewRepository(db)
 	userService := users.NewService(userRepo)
+
+	// Add Cards Module
+	cardRepo := cards.NewRepository(db)
+	cardService := cards.NewService(cardRepo, userRepo)
 
 	r := chi.NewRouter()
 
 	r.Route("/api", func(r chi.Router) {
 
 		r.Mount("/users", users.Routes(userService))
+		r.Mount("/cards", cards.Routes(cardService, userService))
 
 		r.Route("/chores", func(r chi.Router) {
 			//chores.RegisterRoutes(r, db)
-		})
-
-		r.Route("/cards", func(r chi.Router) {
-			//cards.RegisterRoutes(r, db)
 		})
 	})
 
