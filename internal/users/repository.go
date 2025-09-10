@@ -3,7 +3,7 @@ package users
 import "gorm.io/gorm"
 
 type Repository interface {
-	SaveUser(username, password, firstName, lastName string) *error
+	SaveUser(username, password, firstName, lastName string) error
 }
 
 type repository struct {
@@ -14,7 +14,7 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) SaveUser(username, password, firstName, lastName string) *error {
+func (r *repository) SaveUser(username, password, firstName, lastName string) error {
 	user := User{
 		Username:  username,
 		Password:  password,
@@ -23,7 +23,7 @@ func (r *repository) SaveUser(username, password, firstName, lastName string) *e
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {
-		return &err
+		return err
 	}
 
 	return nil

@@ -1,24 +1,17 @@
 package users
 
-import "github.com/xandervanderweken/GoHomeNet/internal/events"
-
 type Service interface {
-	SignUpUser(username, password, firstName, lastName string)
+	SignUpUser(username, password, firstName, lastName string) error
 }
 
 type service struct {
-	eventBus *events.EventBus
+	repository Repository
 }
 
-func NewService(eventBus *events.EventBus) Service {
-	return &service{eventBus: eventBus}
+func NewService(repository Repository) Service {
+	return &service{repository: repository}
 }
 
-func (s *service) SignUpUser(username, password, firstName, lastName string) {
-	s.eventBus.Publish(UserRegisteredEvent{
-		Username:  username,
-		Password:  password,
-		FirstName: firstName,
-		LastName:  lastName,
-	})
+func (s *service) SignUpUser(username, password, firstName, lastName string) error {
+	return s.repository.SaveUser(username, password, firstName, lastName)
 }

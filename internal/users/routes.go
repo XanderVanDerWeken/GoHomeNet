@@ -13,16 +13,18 @@ func Routes(service Service) http.Handler {
 
 	r.Post("/signup", func(w http.ResponseWriter, r *http.Request) {
 		var dto struct {
-			username  string
-			password  string
-			firstName string
-			lastName  string
+			Username  string `json:"username"`
+			Password  string `json:"password"`
+			FirstName string `json:"firstName"`
+			LastName  string `json:"lastName"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 			writeError(w, shared.ErrBadRequest)
 			return
 		}
 
+		service.SignUpUser(dto.Username, dto.Password, dto.FirstName, dto.LastName)
+		w.WriteHeader(http.StatusCreated)
 	})
 
 	return r

@@ -10,7 +10,6 @@ import (
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/config"
 	"github.com/xandervanderweken/GoHomeNet/internal/database"
-	"github.com/xandervanderweken/GoHomeNet/internal/events"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
@@ -21,15 +20,9 @@ func main() {
 	db := database.Connect()
 	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{})
 
-	// Add Event Bus
-	eventBus := events.NewEventBus()
-
 	// Add User Repository and Service
 	userRepo := users.NewRepository(db)
-	userService := users.NewService(eventBus)
-
-	// Register User Event Handlers
-	eventBus.Register("UserRegistered", users.NewUserRegisteredPersistenceHandler(userRepo))
+	userService := users.NewService(userRepo)
 
 	r := chi.NewRouter()
 
