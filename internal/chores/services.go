@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	CreateChore(username, title, notes string, dueDate *time.Time) error
+	GetAllChores() []Chore
 	GetChoresByUsername(username string) ([]Chore, error)
 	CompleteChore(choreID uint) error
 	DeleteChore(choreID uint) error
@@ -30,6 +31,10 @@ func (s *service) CreateChore(username, title, notes string, dueDate *time.Time)
 	}
 
 	return s.repository.CreateChore(userId, title, notes, dueDate)
+}
+
+func (s *service) GetAllChores() []Chore {
+	return s.repository.GetAllChores()
 }
 
 func (s *service) GetChoresByUsername(username string) ([]Chore, error) {

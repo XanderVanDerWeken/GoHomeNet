@@ -8,6 +8,7 @@ import (
 
 type Repsitory interface {
 	CreateChore(userId uint, title, notes string, dueDate *time.Time) error
+	GetAllChores() []Chore
 	GetChoresByUsername(username string) ([]Chore, error)
 	CompleteChore(choreID uint) error
 	DeleteChore(choreID uint) error
@@ -34,6 +35,14 @@ func (r *repsitory) CreateChore(userId uint, title, notes string, dueDate *time.
 	}
 
 	return nil
+}
+
+func (r *repsitory) GetAllChores() []Chore {
+	var chores []Chore
+
+	r.db.Find(&chores)
+
+	return chores
 }
 
 func (r *repsitory) GetChoresByUsername(username string) ([]Chore, error) {
