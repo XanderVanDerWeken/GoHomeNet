@@ -10,6 +10,7 @@ import (
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/config"
 	"github.com/xandervanderweken/GoHomeNet/internal/database"
+	"github.com/xandervanderweken/GoHomeNet/internal/finances"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
@@ -18,7 +19,7 @@ func main() {
 
 	// Connect to the database
 	db := database.Connect()
-	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{})
+	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{}, &finances.Transaction{}, &finances.Category{})
 
 	// Add Users Module
 	userRepo := users.NewRepository(db)
