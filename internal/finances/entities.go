@@ -8,7 +8,7 @@ import (
 
 type TransactionType string
 
-var (
+const (
 	TransactionTypeIncome  TransactionType = "income"
 	TransactionTypeExpense TransactionType = "expense"
 )
@@ -22,12 +22,12 @@ type Transaction struct {
 	TransactionType TransactionType `gorm:"not null;index"`
 	Money           Money           `gorm:"embedded"`
 	Date            time.Time       `gorm:"not null;index"`
-	CategoryID      int             `gorm:"not null;index"`
+	CategoryID      uint            `gorm:"not null;index"`
 	Notes           string          `gorm:"type:text"`
 }
 
 type Category struct {
-	ID        int `gorm:"primaryKey"`
+	ID        uint `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

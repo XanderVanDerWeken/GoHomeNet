@@ -29,16 +29,23 @@ func main() {
 	cardRepo := cards.NewRepository(db)
 	cardService := cards.NewService(cardRepo, userRepo)
 
+	// Add Chores Module
+	choreRepo := chores.NewRepository(db)
+	choreService := chores.NewService(choreRepo, userRepo)
+
+	// Add Finances Module
+	transactionRepo := finances.NewTransactionRepository(db)
+	categoryRepo := finances.NewCategoryRepository(db)
+	financesService := finances.NewService(transactionRepo, categoryRepo)
+
 	r := chi.NewRouter()
 
 	r.Route("/api", func(r chi.Router) {
 
 		r.Mount("/users", users.Routes(userService))
 		r.Mount("/cards", cards.Routes(cardService, userService))
-
-		r.Route("/chores", func(r chi.Router) {
-			//chores.RegisterRoutes(r, db)
-		})
+		r.Mount("/chores", chores.Routes(choreService, userService))
+		r.Mount("/finances", finances.Routes(financesService))
 	})
 
 	port := config.AppConfig.Server.Port

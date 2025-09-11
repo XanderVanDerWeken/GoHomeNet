@@ -27,7 +27,12 @@ func Routes(service Service, userService users.Service) http.Handler {
 			return
 		}
 
-		service.CreateChore(dto.Username, dto.Title, dto.Notes, &dto.DueDate)
+		if err := service.CreateChore(dto.Username, dto.Title, dto.Notes, &dto.DueDate); err != nil {
+			writeError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
 	})
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
