@@ -34,3 +34,17 @@ type Category struct {
 
 	Name string `gorm:"not null;uniqueIndex"`
 }
+
+type AggregatedTransaction struct {
+	CategoryName    string
+	Money           Money
+	TransactionType TransactionType
+}
+
+type AggregationResult struct {
+	Year         int
+	Month        int
+	TotalIncome  Money
+	TotalExpense Money
+	Transactions []AggregatedTransaction
+}

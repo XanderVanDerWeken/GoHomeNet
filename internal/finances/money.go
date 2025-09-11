@@ -20,10 +20,10 @@ func (m Money) String() string {
 	return fmt.Sprintf("%d.%02d", euros, cents)
 }
 
-func (m Money) Add(other Money) Money {
-	return Money{Cents: m.Cents + other.Cents}
+func (m *Money) Add(other Money) {
+	m.Cents += other.Cents
 }
 
-func (m Money) Sub(other Money) Money {
-	return Money{Cents: m.Cents - other.Cents}
+func (m *Money) Sub(other Money) {
+	m.Cents -= other.Cents
 }
