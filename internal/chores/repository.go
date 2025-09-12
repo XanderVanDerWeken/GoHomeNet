@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Repsitory interface {
+type Repository interface {
 	CreateChore(userId uint, title, notes string, dueDate *time.Time) error
 	GetAllChores() []Chore
 	GetChoresByUsername(username string) ([]Chore, error)
@@ -14,15 +14,15 @@ type Repsitory interface {
 	DeleteChore(choreID uint) error
 }
 
-type repsitory struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) Repsitory {
-	return &repsitory{db: db}
+func NewRepository(db *gorm.DB) Repository {
+	return &repository{db: db}
 }
 
-func (r *repsitory) CreateChore(userId uint, title, notes string, dueDate *time.Time) error {
+func (r *repository) CreateChore(userId uint, title, notes string, dueDate *time.Time) error {
 	chore := Chore{
 		UserID:  userId,
 		Title:   title,
@@ -37,7 +37,7 @@ func (r *repsitory) CreateChore(userId uint, title, notes string, dueDate *time.
 	return nil
 }
 
-func (r *repsitory) GetAllChores() []Chore {
+func (r *repository) GetAllChores() []Chore {
 	var chores []Chore
 
 	r.db.Find(&chores)
@@ -45,7 +45,7 @@ func (r *repsitory) GetAllChores() []Chore {
 	return chores
 }
 
-func (r *repsitory) GetChoresByUsername(username string) ([]Chore, error) {
+func (r *repository) GetChoresByUsername(username string) ([]Chore, error) {
 	var chores []Chore
 
 	err := r.db.
@@ -56,12 +56,12 @@ func (r *repsitory) GetChoresByUsername(username string) ([]Chore, error) {
 	return chores, err
 }
 
-func (r *repsitory) CompleteChore(choreID uint) error {
+func (r *repository) CompleteChore(choreID uint) error {
 	return r.db.Model(&Chore{}).
 		Where("id = ?", choreID).
 		Update("completed", true).Error
 }
 
-func (r *repsitory) DeleteChore(choreID uint) error {
+func (r *repository) DeleteChore(choreID uint) error {
 	return r.db.Delete(&Chore{}, choreID).Error
 }
