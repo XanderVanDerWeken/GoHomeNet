@@ -40,12 +40,22 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/api", func(apiRouter chi.Router) {
+		apiRouter.Route("/cards", func(r chi.Router) {
+			cards.Routes(r, cardService, userService)
+		})
 
-		r.Mount("/users", users.Routes(userService))
-		r.Mount("/cards", cards.Routes(cardService, userService))
-		r.Mount("/chores", chores.Routes(choreService, userService))
-		r.Mount("/finances", finances.Routes(financesService))
+		apiRouter.Route("/chores", func(r chi.Router) {
+			chores.Routes(r, choreService, userService)
+		})
+
+		apiRouter.Route("/finances", func(r chi.Router) {
+			finances.Routes(r, financesService)
+		})
+
+		apiRouter.Route("/users", func(r chi.Router) {
+			users.Routes(r, userService)
+		})
 	})
 
 	port := config.AppConfig.Server.Port
