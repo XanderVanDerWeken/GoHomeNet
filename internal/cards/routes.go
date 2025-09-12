@@ -2,15 +2,12 @@ package cards
 
 import (
 	"github.com/go-chi/chi/v5"
-	"gorm.io/gorm"
+	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
-func RegisterRoutes(r chi.Router, db *gorm.DB) {
-	repo := NewRepository(db)
-	service := NewService(repo)
-	handler := NewHandler(service)
+func Routes(router chi.Router, service Service, userService users.Service) {
+	handler := NewCardHandler(service, userService)
 
-	r.Get("/", handler.GetAllCards)
-	r.Post("/", handler.CreateCard)
-	r.Delete("/{cardId}", handler.DeleteCard)
+	router.Post("/", handler.PostNewCard)
+	router.Get("/", handler.GetCards)
 }

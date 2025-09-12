@@ -3,63 +3,84 @@ package cards
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
+	"time"
 
-	"github.com/go-chi/chi/v5"
-	errx "github.com/xandervanderweken/GoHomeNet/internal/errors"
+	"github.com/xandervanderweken/GoHomeNet/internal/shared"
+	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type CardHandler struct {
-	service Service
+	service     Service
+	userService users.Service
 }
 
-func NewHandler(service Service) *CardHandler {
-	return &CardHandler{service: service}
+func NewCardHandler(service Service, userService users.Service) *CardHandler {
+	return &CardHandler{service: service, userService: userService}
 }
 
-func (h *CardHandler) GetAllCards(w http.ResponseWriter, r *http.Request) {
-	cards, err := h.service.GetAllCards()
-	if err != nil {
-		errx.RespondError(w, err)
+func (h *CardHandler) PostNewCard(w http.ResponseWriter, r *http.Request) {
+	var dto struct {
+		Username  string    `json:"username"`
+		Name      string    `json:"name"`
+		ExpiresAt time.Time `json:"expiresAt"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		writeError(w, shared.ErrBadRequest)
 		return
+	}
+
+	h.service.AddCard(dto.Username, dto.Name, dto.ExpiresAt)
+}
+
+func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	username := q.Get("username")
+
+	var cards []Card
+	var err error
+
+	if username != "" {
+		cards, err = h.service.GetAllOwnCards(username)
+	} else {
+		cards = h.service.GetAllCards()
+	}
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	cardDtos := make([]CardDto, 0, len(cards))
+
+	for _, card := range cards {
+		uName := username
+		if uName == "" {
+			user, err := h.userService.GetUserByUserId(card.UserID)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			uName = user.Username
+		}
+
+		cardDtos = append(cardDtos, CardDto{
+			Username:  uName,
+			Name:      card.Name,
+			ExpiresAt: card.ExpiresAt,
+		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(cards)
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(cardDtos); err != nil {
+		writeError(w, err)
+		return
+	}
 }
 
-func (h *CardHandler) CreateCard(w http.ResponseWriter, r *http.Request) {
-	var req CreateCardRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		errx.RespondError(w, errx.ErrValidation)
+func writeError(w http.ResponseWriter, err error) {
+	if appErr, ok := err.(*shared.AppError); ok {
+		http.Error(w, appErr.Message, appErr.Status)
 		return
 	}
-
-	cardDto, err := h.service.CreateCard(req)
-	if err != nil {
-		errx.RespondError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(cardDto)
-}
-
-func (h *CardHandler) DeleteCard(w http.ResponseWriter, r *http.Request) {
-	cardIdStr := chi.URLParam(r, "cardId")
-
-	cardId64, err := strconv.ParseUint(cardIdStr, 10, 32)
-	if err != nil {
-		errx.RespondError(w, errx.ErrValidation)
-		return
-	}
-	cardId := uint(cardId64)
-
-	if err := h.service.DeleteCard(cardId); err != nil {
-		errx.RespondError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }

@@ -1,10 +1,17 @@
 package chores
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Repository interface {
-	GetAllChores() ([]Chore, error)
-	CreateChore(newChore *Chore) error
+	CreateChore(userId uint, title, notes string, dueDate *time.Time) error
+	GetAllChores() []Chore
+	GetChoresByUsername(username string) ([]Chore, error)
+	CompleteChore(choreID uint) error
+	DeleteChore(choreID uint) error
 }
 
 type repository struct {
@@ -15,14 +22,46 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetAllChores() ([]Chore, error) {
-	var chores []Chore
-	if err := r.db.Find(&chores).Error; err != nil {
-		return nil, err
+func (r *repository) CreateChore(userId uint, title, notes string, dueDate *time.Time) error {
+	chore := Chore{
+		UserID:  userId,
+		Title:   title,
+		Notes:   notes,
+		DueDate: dueDate,
 	}
-	return chores, nil
+
+	if err := r.db.Create(&chore).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (r *repository) CreateChore(newChore *Chore) error {
-	return r.db.Create(newChore).Error
+func (r *repository) GetAllChores() []Chore {
+	var chores []Chore
+
+	r.db.Find(&chores)
+
+	return chores
+}
+
+func (r *repository) GetChoresByUsername(username string) ([]Chore, error) {
+	var chores []Chore
+
+	err := r.db.
+		Joins("JOIN users ON users.id = chores.user_id").
+		Where("users.username = ?", username).
+		Find(&chores).Error
+
+	return chores, err
+}
+
+func (r *repository) CompleteChore(choreID uint) error {
+	return r.db.Model(&Chore{}).
+		Where("id = ?", choreID).
+		Update("completed", true).Error
+}
+
+func (r *repository) DeleteChore(choreID uint) error {
+	return r.db.Delete(&Chore{}, choreID).Error
 }

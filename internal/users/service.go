@@ -1,37 +1,22 @@
 package users
 
-import (
-	"errors"
-
-	"golang.org/x/crypto/bcrypt"
-)
-
 type Service interface {
-	Authenticate(email, password string) (*User, error)
-	GetUserByID(id uint) (*User, error)
+	SignUpUser(username, password, firstName, lastName string) error
+	GetUserByUserId(userId uint) (*User, error)
 }
 
 type service struct {
-	repo Repository
+	repository Repository
 }
 
-func NewService(repo Repository) Service {
-	return &service{repo: repo}
+func NewService(repository Repository) Service {
+	return &service{repository: repository}
 }
 
-func (s *service) Authenticate(email, password string) (*User, error) {
-	user, err := s.repo.FindByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New("invalid credentials")
-	}
-
-	return user, nil
+func (s *service) SignUpUser(username, password, firstName, lastName string) error {
+	return s.repository.SaveUser(username, password, firstName, lastName)
 }
 
-func (s *service) GetUserByID(id uint) (*User, error) {
-	return s.repo.FindByID(id)
+func (s *service) GetUserByUserId(userId uint) (*User, error) {
+	return s.repository.GetUserByUserId(userId)
 }

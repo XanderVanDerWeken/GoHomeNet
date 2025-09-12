@@ -2,14 +2,15 @@ package chores
 
 import (
 	"github.com/go-chi/chi/v5"
-	"gorm.io/gorm"
+	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
-func RegisterRoutes(r chi.Router, db *gorm.DB) {
-	repo := NewRepository(db)
-	service := NewService(repo)
-	handler := NewHandler(service)
+func Routes(router chi.Router, service Service, userService users.Service) {
+	handler := NewChoreHandler(service, userService)
 
-	r.Get("/", handler.GetAllChores)
-	r.Post("/", handler.CreateChore)
+	router.Post("/", handler.PostNewChore)
+	router.Get("/", handler.GetChores)
+
+	router.Put("/{choreID}/complete", handler.PutChoreComplete)
+	router.Delete("/{choreID}", handler.DeleteChore)
 }

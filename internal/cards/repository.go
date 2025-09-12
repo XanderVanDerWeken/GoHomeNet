@@ -1,11 +1,15 @@
 package cards
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Repository interface {
-	GetAllCards() ([]Card, error)
-	CreateCard(card *Card) error
-	DeleteCard(id uint) error
+	AddCard(userID uint, name string, expiresAt time.Time) error
+	GetAllCards() []Card
+	GetAllOwnCards(username string) ([]Card, error)
 }
 
 type repository struct {
@@ -16,18 +20,34 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetAllCards() ([]Card, error) {
-	var cards []Card
-	if err := r.db.Find(&cards).Error; err != nil {
-		return nil, err
+func (r *repository) AddCard(userID uint, name string, expiresAt time.Time) error {
+	card := Card{
+		UserID:    userID,
+		Name:      name,
+		ExpiresAt: expiresAt,
 	}
-	return cards, nil
+
+	if err := r.db.Create(&card).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (r *repository) CreateCard(card *Card) error {
-	return r.db.Create(card).Error
+func (r *repository) GetAllCards() []Card {
+	var cards []Card
+	r.db.Find(&cards)
+
+	return cards
 }
 
-func (r *repository) DeleteCard(id uint) error {
-	return r.db.Delete(&Card{}, id).Error
+func (r *repository) GetAllOwnCards(username string) ([]Card, error) {
+	var cards []Card
+
+	err := r.db.
+		Joins("JOIN users ON users.id = cards.user_id").
+		Where("users.username = ?", username).
+		Find(&cards).Error
+
+	return cards, err
 }

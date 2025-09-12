@@ -3,7 +3,7 @@ database:
   port: 5432
   user: admin
   password: admin
-  name: hometnet_db
+  name: homenetdb
   ssl_mode: disable
 server:
   port: 8080
