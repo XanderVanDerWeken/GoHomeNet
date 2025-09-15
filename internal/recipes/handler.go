@@ -2,6 +2,7 @@ package recipes
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
@@ -22,16 +23,21 @@ func NewRecipeHandler(service Service, userSerivce users.Service) *RecipeHandler
 
 func (h *RecipeHandler) PostNewRecipe(w http.ResponseWriter, r *http.Request) {
 	var dto struct {
-		Title    string `json:"title"`
-		Username string `json:"author"`
+		Title        string                `json:"title"`
+		Username     string                `json:"author"`
+		Description  string                `json:"description"`
+		Ingredients  []RecipeIngredientDto `json:"ingredients"`
+		Instructions []RecipeStepDto       `json:"instructions"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		writeError(w, err)
+		log.Println("Error decoding recipe creation request:", err)
 		return
 	}
 
 	if err := h.service.CreateRecipe(dto.Username, dto.Title); err != nil {
 		writeError(w, err)
+		log.Println("Error creating recipe:", err)
 		return
 	}
 
@@ -67,9 +73,29 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		ingredientsDtos := make([]RecipeIngredientDto, 0, len(recipe.Ingredients))
+		for _, ingredient := range recipe.Ingredients {
+			ingredientsDtos = append(ingredientsDtos, RecipeIngredientDto{
+				Ingredient: ingredient.Ingredient,
+				Amount:     ingredient.Amount,
+				Unit:       ingredient.Unit,
+			})
+		}
+
+		instructionsDtos := make([]RecipeStepDto, 0, len(recipe.Instructions))
+		for _, step := range recipe.Instructions {
+			instructionsDtos = append(instructionsDtos, RecipeStepDto{
+				Text: step.Text,
+				Time: step.Time,
+			})
+		}
+
 		recipeDtos = append(recipeDtos, RecipeDto{
-			Title:    recipe.Title,
-			Username: user.Username,
+			Title:        recipe.Title,
+			Username:     user.Username,
+			Description:  recipe.Description,
+			Ingredients:  ingredientsDtos,
+			Instructions: instructionsDtos,
 		})
 	}
 

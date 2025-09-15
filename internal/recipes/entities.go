@@ -16,8 +16,8 @@ type Recipe struct {
 	Title       string `gorm:"not null"`
 	Description string `gorm:"not null"`
 
-	Ingredients  []RecipeIngredient `gorm:"foreignKey:RecipeID"`
-	Instructions []RecipeStep       `gorm:"foreignKey:RecipeID"`
+	Ingredients  []RecipeIngredient
+	Instructions []RecipeStep
 }
 
 type RecipeIngredient struct {

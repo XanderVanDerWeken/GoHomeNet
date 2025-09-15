@@ -1,6 +1,20 @@
 package recipes
 
 type RecipeDto struct {
-	Title    string `json:"Title"`
-	Username string `json:"Author"`
+	Title        string                `json:"title"`
+	Username     string                `json:"author"`
+	Description  string                `json:"description"`
+	Ingredients  []RecipeIngredientDto `json:"ingredients"`
+	Instructions []RecipeStepDto       `json:"instructions"`
+}
+
+type RecipeIngredientDto struct {
+	Ingredient string `json:"ingredient"`
+	Amount     int    `json:"amount"`
+	Unit       string `json:"unit"`
+}
+
+type RecipeStepDto struct {
+	Text string `json:"text"`
+	Time string `json:"time"`
 }
