@@ -6,6 +6,7 @@ import (
 	"github.com/xandervanderweken/GoHomeNet/internal/config"
 	"github.com/xandervanderweken/GoHomeNet/internal/database"
 	"github.com/xandervanderweken/GoHomeNet/internal/finances"
+	"github.com/xandervanderweken/GoHomeNet/internal/recipes"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,9 @@ type Container struct {
 	TransactionRepo finances.TransactionRepository
 	CategoryRepo    finances.CategoryRepository
 	FinancesSvc     finances.Service
+
+	RecipeRepo recipes.Repository
+	RecipeSvc  recipes.Service
 }
 
 func New() *Container {
@@ -33,7 +37,13 @@ func New() *Container {
 
 	// Connect to the database
 	db := database.Connect()
-	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{}, &finances.Transaction{}, &finances.Category{})
+	db.AutoMigrate(
+		&users.User{},
+		&cards.Card{},
+		&chores.Chore{},
+		&finances.Transaction{}, &finances.Category{},
+		&recipes.Recipe{}, &recipes.RecipeIngredient{}, &recipes.RecipeStep{},
+	)
 
 	// Add Users Module
 	userRepo := users.NewRepository(db)
@@ -52,6 +62,10 @@ func New() *Container {
 	categoryRepo := finances.NewCategoryRepository(db)
 	financesSvc := finances.NewService(transactionRepo, categoryRepo)
 
+	// Add Recipe Module
+	recipeRepo := recipes.NewRepository(db)
+	recipeSvc := recipes.NewService(recipeRepo, userRepo)
+
 	return &Container{
 		DB: db,
 
@@ -67,5 +81,8 @@ func New() *Container {
 		TransactionRepo: transactionRepo,
 		CategoryRepo:    categoryRepo,
 		FinancesSvc:     financesSvc,
+
+		RecipeRepo: recipeRepo,
+		RecipeSvc:  recipeSvc,
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/container"
 	"github.com/xandervanderweken/GoHomeNet/internal/finances"
+	"github.com/xandervanderweken/GoHomeNet/internal/recipes"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
@@ -23,6 +24,10 @@ func NewRouter(c *container.Container) *chi.Mux {
 
 		apiRouter.Route("/finances", func(r chi.Router) {
 			finances.Routes(r, c.FinancesSvc)
+		})
+
+		apiRouter.Route("/recipes", func(r chi.Router) {
+			recipes.Routes(r, c.RecipeSvc, c.UserSvc)
 		})
 
 		apiRouter.Route("/users", func(r chi.Router) {
