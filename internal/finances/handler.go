@@ -22,7 +22,10 @@ func (h *FinanceHandler) PostNewCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := h.service.CreateCategory(dto.Name); err != nil {
+	newCategory := Category{
+		Name: dto.Name,
+	}
+	if err := h.service.CreateCategory(&newCategory); err != nil {
 		shared.WriteError(w, err)
 		return
 	}

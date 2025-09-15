@@ -1,13 +1,11 @@
 package chores
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	CreateChore(userId uint, title, notes string, dueDate *time.Time) error
+	CreateChore(newChore *Chore) error
 	GetAllChores() []Chore
 	GetChoresByUsername(username string) ([]Chore, error)
 	CompleteChore(choreID uint) error
@@ -22,15 +20,8 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) CreateChore(userId uint, title, notes string, dueDate *time.Time) error {
-	chore := Chore{
-		UserID:  userId,
-		Title:   title,
-		Notes:   notes,
-		DueDate: dueDate,
-	}
-
-	if err := r.db.Create(&chore).Error; err != nil {
+func (r *repository) CreateChore(newChore *Chore) error {
+	if err := r.db.Create(newChore).Error; err != nil {
 		return err
 	}
 

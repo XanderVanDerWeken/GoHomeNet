@@ -1,47 +1,70 @@
 package finances
 
-import "time"
+import (
+	"github.com/xandervanderweken/GoHomeNet/internal/events"
+)
 
 type Service interface {
-	CreateCategory(name string) error
+	CreateCategory(newCategory *Category) error
 	GetAllCategories() []Category
 
-	CreateTransaction(transactionType TransactionType, money Money, date time.Time, categoryName, notes string) error
+	CreateTransaction(categoryName string, newTransaction *Transaction) error
 	GetAggregatedTransactions(year, month int) (*AggregationResult, error)
+
+	HandleNewCategoryEvent(e events.Event)
+	HandleNewTransactionEvent(e events.Event)
 }
 
 type service struct {
-	transactionRepository TransactionRepository
-	categoryRepository    CategoryRepository
+	transactionRepo TransactionRepository
+	categoryRepo    CategoryRepository
+	eventBus        *events.EventBus
 }
 
-func NewService(transactionRepository TransactionRepository, catcategoryRepository CategoryRepository) Service {
+func NewService(transactionRepo TransactionRepository, categoryRepo CategoryRepository, eventBus *events.EventBus) Service {
 	return &service{
-		transactionRepository: transactionRepository,
-		categoryRepository:    catcategoryRepository,
+		transactionRepo: transactionRepo,
+		categoryRepo:    categoryRepo,
+		eventBus:        eventBus,
 	}
 }
 
-func (s *service) CreateCategory(name string) error {
-	return s.categoryRepository.SaveCategory(name)
+func (s *service) CreateCategory(newCategory *Category) error {
+	if cat, err := s.categoryRepo.GetCategoryByName(newCategory.Name); err != nil {
+		return err
+	} else if cat != nil {
+		return ErrCategoryAlreadyExists
+	}
+
+	s.eventBus.Publish(NewCategoryEvent{
+		NewCategory: *newCategory,
+	})
+
+	return nil
 }
 
 func (s *service) GetAllCategories() []Category {
-	return s.categoryRepository.GetAllCategories()
+	return s.categoryRepo.GetAllCategories()
 }
 
-func (s *service) CreateTransaction(transactionType TransactionType, money Money, date time.Time, categoryName, notes string) error {
-	category, err := s.categoryRepository.GetCategoryByName(categoryName)
+func (s *service) CreateTransaction(categoryName string, newTransaction *Transaction) error {
+	category, err := s.categoryRepo.GetCategoryByName(categoryName)
 
 	if err != nil {
 		return err
 	}
 
-	return s.transactionRepository.SaveTransaction(transactionType, money, date, category.ID, notes)
+	newTransaction.CategoryID = category.ID
+
+	s.eventBus.Publish(NewTransactionEvent{
+		NewTransaction: *newTransaction,
+	})
+
+	return nil
 }
 
 func (s *service) GetAggregatedTransactions(year, month int) (*AggregationResult, error) {
-	transactions, err := s.transactionRepository.GetTransactionsWithYearAndMonth(year, month)
+	transactions, err := s.transactionRepo.GetTransactionsWithYearAndMonth(year, month)
 
 	if err != nil {
 		return nil, err
@@ -67,7 +90,7 @@ func (s *service) calculateAggregation(year, month int, transactions []Transacti
 		}
 
 		if aggregationMap[tx.CategoryID] == nil {
-			category, err := s.categoryRepository.GetCategoryById(tx.CategoryID)
+			category, err := s.categoryRepo.GetCategoryById(tx.CategoryID)
 
 			if err != nil {
 				return nil, err
@@ -87,4 +110,16 @@ func (s *service) calculateAggregation(year, month int, transactions []Transacti
 	}
 
 	return &result, nil
+}
+
+func (s *service) HandleNewCategoryEvent(e events.Event) {
+	if event, ok := e.(NewCategoryEvent); ok {
+		s.categoryRepo.SaveCategory(&event.NewCategory)
+	}
+}
+
+func (s *service) HandleNewTransactionEvent(e events.Event) {
+	if event, ok := e.(NewTransactionEvent); ok {
+		s.transactionRepo.SaveTransaction(&event.NewTransaction)
+	}
 }

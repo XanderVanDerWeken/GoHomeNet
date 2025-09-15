@@ -7,12 +7,12 @@ import (
 )
 
 type TransactionRepository interface {
-	SaveTransaction(transactionType TransactionType, money Money, date time.Time, categoryId uint, notes string) error
+	SaveTransaction(newTransaction *Transaction) error
 	GetTransactionsWithYearAndMonth(year, month int) ([]Transaction, error)
 }
 
 type CategoryRepository interface {
-	SaveCategory(name string) error
+	SaveCategory(newCategory *Category) error
 	GetAllCategories() []Category
 	GetCategoryByName(name string) (*Category, error)
 	GetCategoryById(id uint) (*Category, error)
@@ -34,24 +34,12 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 	return &categoryRepository{db: db}
 }
 
-func (r *transactionRepository) SaveTransaction(transactionType TransactionType, money Money, date time.Time, categoryId uint, notes string) error {
-	transaction := Transaction{
-		TransactionType: transactionType,
-		Money:           money,
-		Date:            date,
-		CategoryID:      categoryId,
-		Notes:           notes,
-	}
-
-	return r.db.Create(&transaction).Error
+func (r *transactionRepository) SaveTransaction(newTransaction *Transaction) error {
+	return r.db.Create(newTransaction).Error
 }
 
-func (r *categoryRepository) SaveCategory(name string) error {
-	category := Category{
-		Name: name,
-	}
-
-	return r.db.Create(&category).Error
+func (r *categoryRepository) SaveCategory(newCategory *Category) error {
+	return r.db.Create(newCategory).Error
 }
 
 func (r *transactionRepository) GetTransactionsWithYearAndMonth(year, month int) ([]Transaction, error) {

@@ -27,7 +27,12 @@ func (h *ChoreHandler) PostNewChore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.CreateChore(dto.Username, dto.Title, dto.Notes, &dto.DueDate); err != nil {
+	newChore := Chore{
+		Title:   dto.Title,
+		Notes:   dto.Notes,
+		DueDate: &dto.DueDate,
+	}
+	if err := h.service.CreateChore(dto.Username, &newChore); err != nil {
 		shared.WriteError(w, err)
 		return
 	}

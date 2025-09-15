@@ -14,7 +14,7 @@ func TestCalculateAggregation(t *testing.T) {
 			2: {ID: 2, Name: "Food"},
 		},
 	}
-	service := &service{categoryRepository: &mockRepo}
+	service := &service{categoryRepo: &mockRepo}
 
 	transactions := []Transaction{
 		{TransactionType: TransactionTypeIncome, Money: NewMoney(100, 0), CategoryID: 1},
@@ -57,7 +57,7 @@ func (m *mockCategoryRepository) GetCategoryByName(name string) (*Category, erro
 	return &Category{}, nil
 }
 
-func (m *mockCategoryRepository) SaveCategory(name string) error {
+func (m *mockCategoryRepository) SaveCategory(newCategory *Category) error {
 	return nil
 }
 

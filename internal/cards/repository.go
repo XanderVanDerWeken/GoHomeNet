@@ -1,13 +1,11 @@
 package cards
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	AddCard(userID uint, name string, expiresAt time.Time) error
+	AddCard(newCard *Card) error
 	GetAllCards() []Card
 	GetAllOwnCards(username string) ([]Card, error)
 }
@@ -20,14 +18,8 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) AddCard(userID uint, name string, expiresAt time.Time) error {
-	card := Card{
-		UserID:    userID,
-		Name:      name,
-		ExpiresAt: expiresAt,
-	}
-
-	if err := r.db.Create(&card).Error; err != nil {
+func (r *repository) AddCard(newCard *Card) error {
+	if err := r.db.Create(newCard).Error; err != nil {
 		return err
 	}
 

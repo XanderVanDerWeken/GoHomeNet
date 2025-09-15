@@ -24,7 +24,11 @@ func (h *CardHandler) PostNewCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.service.AddCard(dto.Username, dto.Name, dto.ExpiresAt)
+	newCard := Card{
+		Name:      dto.Name,
+		ExpiresAt: dto.ExpiresAt,
+	}
+	h.service.AddCard(dto.Username, &newCard)
 }
 
 func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/config"
 	"github.com/xandervanderweken/GoHomeNet/internal/database"
+	"github.com/xandervanderweken/GoHomeNet/internal/events"
 	"github.com/xandervanderweken/GoHomeNet/internal/finances"
 	"github.com/xandervanderweken/GoHomeNet/internal/recipes"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
@@ -13,6 +14,8 @@ import (
 
 type Container struct {
 	DB *gorm.DB
+
+	EventBus *events.EventBus
 
 	UserRepo users.Repository
 	UserSvc  users.Service
@@ -45,29 +48,39 @@ func New() *Container {
 		&recipes.Recipe{}, &recipes.RecipeIngredient{}, &recipes.RecipeStep{},
 	)
 
+	eventBus := events.NewEventBus()
+
 	// Add Users Module
 	userRepo := users.NewRepository(db)
 	userService := users.NewService(userRepo)
 
 	// Add Cards Module
 	cardRepo := cards.NewRepository(db)
-	cardSvc := cards.NewService(cardRepo, userRepo)
+	cardSvc := cards.NewService(cardRepo, userRepo, eventBus)
+	eventBus.Register("NewCardEvent", cardSvc.HandleNewCardEvent)
 
 	// Add Chores Module
 	choreRepo := chores.NewRepository(db)
-	choreSvc := chores.NewService(choreRepo, userRepo)
+	choreSvc := chores.NewService(choreRepo, userRepo, eventBus)
+	eventBus.Register("NewChoreEvent", choreSvc.HandleNewChoreEvent)
+	eventBus.Register("CompletedChoreEvent", choreSvc.HandleCompletedChoreEvent)
 
 	// Add Finances Module
 	transactionRepo := finances.NewTransactionRepository(db)
 	categoryRepo := finances.NewCategoryRepository(db)
-	financesSvc := finances.NewService(transactionRepo, categoryRepo)
+	financesSvc := finances.NewService(transactionRepo, categoryRepo, eventBus)
+	eventBus.Register("NewCategoryEvent", financesSvc.HandleNewCategoryEvent)
+	eventBus.Register("NewTransactionEvent", financesSvc.HandleNewTransactionEvent)
 
 	// Add Recipe Module
 	recipeRepo := recipes.NewRepository(db)
-	recipeSvc := recipes.NewService(recipeRepo, userRepo)
+	recipeSvc := recipes.NewService(recipeRepo, userRepo, eventBus)
+	eventBus.Register("NewRecipeEvent", recipeSvc.HandleRecipeCreated)
 
 	return &Container{
 		DB: db,
+
+		EventBus: eventBus,
 
 		UserRepo: userRepo,
 		UserSvc:  userService,
