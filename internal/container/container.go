@@ -68,7 +68,9 @@ func New() *Container {
 	// Add Finances Module
 	transactionRepo := finances.NewTransactionRepository(db)
 	categoryRepo := finances.NewCategoryRepository(db)
-	financesSvc := finances.NewService(transactionRepo, categoryRepo)
+	financesSvc := finances.NewService(transactionRepo, categoryRepo, eventBus)
+	eventBus.Register("NewCategoryEvent", financesSvc.HandleNewCategoryEvent)
+	eventBus.Register("NewTransactionEvent", financesSvc.HandleNewTransactionEvent)
 
 	// Add Recipe Module
 	recipeRepo := recipes.NewRepository(db)
