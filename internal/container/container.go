@@ -37,7 +37,13 @@ func New() *Container {
 
 	// Connect to the database
 	db := database.Connect()
-	db.AutoMigrate(&users.User{}, &cards.Card{}, &chores.Chore{}, &finances.Transaction{}, &finances.Category{})
+	db.AutoMigrate(
+		&users.User{},
+		&cards.Card{},
+		&chores.Chore{},
+		&finances.Transaction{}, &finances.Category{},
+		&recipes.Recipe{}, &recipes.RecipeIngredient{}, &recipes.RecipeStep{},
+	)
 
 	// Add Users Module
 	userRepo := users.NewRepository(db)
