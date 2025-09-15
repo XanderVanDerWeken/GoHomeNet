@@ -16,9 +16,7 @@ func NewFinanceHandler(service Service) *FinanceHandler {
 }
 
 func (h *FinanceHandler) PostNewCategory(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Name string `json:"name"`
-	}
+	var dto NewCategoryDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		shared.WriteError(w, err)
 		return

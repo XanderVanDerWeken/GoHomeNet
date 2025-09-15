@@ -11,13 +11,12 @@ type UserHandler struct {
 	service Service
 }
 
+func NewUserHandler(service Service) *UserHandler {
+	return &UserHandler{service: service}
+}
+
 func (h *UserHandler) PostSignupUser(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Username  string `json:"username"`
-		Password  string `json:"password"`
-		FirstName string `json:"firstName"`
-		LastName  string `json:"lastName"`
-	}
+	var dto SignupDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		shared.WriteError(w, shared.ErrBadRequest)
 		return

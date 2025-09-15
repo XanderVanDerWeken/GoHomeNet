@@ -3,7 +3,6 @@ package cards
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
@@ -19,11 +18,7 @@ func NewCardHandler(service Service, userService users.Service) *CardHandler {
 }
 
 func (h *CardHandler) PostNewCard(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Username  string    `json:"username"`
-		Name      string    `json:"name"`
-		ExpiresAt time.Time `json:"expiresAt"`
-	}
+	var dto NewCardDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		shared.WriteError(w, shared.ErrBadRequest)
 		return

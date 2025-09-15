@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
@@ -22,12 +21,7 @@ func NewChoreHandler(service Service, userService users.Service) *ChoreHandler {
 }
 
 func (h *ChoreHandler) PostNewChore(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Username string    `json:"username"`
-		Title    string    `json:"title"`
-		Notes    string    `json:"notes"`
-		DueDate  time.Time `json:"dueDate"`
-	}
+	var dto NewChoreDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		shared.WriteError(w, err)
 		return

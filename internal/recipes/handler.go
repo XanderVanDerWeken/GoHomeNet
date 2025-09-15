@@ -22,13 +22,7 @@ func NewRecipeHandler(service Service, userSerivce users.Service) *RecipeHandler
 }
 
 func (h *RecipeHandler) PostNewRecipe(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Title        string                `json:"title"`
-		Username     string                `json:"author"`
-		Description  string                `json:"description"`
-		Ingredients  []RecipeIngredientDto `json:"ingredients"`
-		Instructions []RecipeStepDto       `json:"instructions"`
-	}
+	var dto NewRecipeDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		shared.WriteError(w, err)
 		log.Println("Error decoding recipe creation request:", err)
