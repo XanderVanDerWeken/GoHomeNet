@@ -1,41 +1,57 @@
 package cards
 
 import (
-	"time"
-
+	"github.com/xandervanderweken/GoHomeNet/internal/events"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type Service interface {
-	AddCard(username, name string, expiresAt time.Time) error
+	AddCard(username string, newCard *Card) error
 	GetAllCards() []Card
 	GetAllOwnCards(username string) ([]Card, error)
+	HandleNewCardEvent(e events.Event)
 }
 
 type service struct {
-	repository     Repository
-	userRepository users.Repository
+	repo     Repository
+	userRepo users.Repository
+	eventBus *events.EventBus
 }
 
-func NewService(repository Repository, userRepository users.Repository) Service {
-	return &service{repository: repository, userRepository: userRepository}
+func NewService(repo Repository, userRepo users.Repository, eventBus *events.EventBus) Service {
+	return &service{
+		repo:     repo,
+		userRepo: userRepo,
+		eventBus: eventBus,
+	}
 }
 
-func (s *service) AddCard(username, name string, expiresAt time.Time) error {
-	userId, err := s.userRepository.GetUserIdByUsername(username)
+func (s *service) AddCard(username string, newCard *Card) error {
+	userId, err := s.userRepo.GetUserIdByUsername(username)
 
 	if err != nil {
 		return shared.ErrUserNotFound
 	}
 
-	return s.repository.AddCard(userId, name, expiresAt)
+	newCard.UserID = userId
+
+	s.eventBus.Publish(NewCardEvent{
+		NewCard: *newCard,
+	})
+	return nil
 }
 
 func (s *service) GetAllCards() []Card {
-	return s.repository.GetAllCards()
+	return s.repo.GetAllCards()
 }
 
 func (s *service) GetAllOwnCards(username string) ([]Card, error) {
-	return s.repository.GetAllOwnCards(username)
+	return s.repo.GetAllOwnCards(username)
+}
+
+func (s *service) HandleNewCardEvent(e events.Event) {
+	if event, ok := e.(NewCardEvent); ok {
+		s.repo.AddCard(&event.NewCard)
+	}
 }
