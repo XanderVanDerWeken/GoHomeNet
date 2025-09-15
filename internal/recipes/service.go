@@ -28,10 +28,17 @@ func NewService(repo Repository, userRepo users.Repository, eventBus *events.Eve
 }
 
 func (s *service) CreateRecipe(username string, newRecipe *Recipe) error {
-	userId, err := s.userRepo.GetUserIdByUsername(username)
+	var userId uint
+	var err error
 
-	if err != nil {
+	if userId, err = s.userRepo.GetUserIdByUsername(username); err != nil {
 		return shared.ErrUserNotFound
+	}
+
+	if foundRecipe, err := s.repo.GetRecipeWithTitle(newRecipe.Title); err != nil {
+		return err
+	} else if foundRecipe != nil {
+		return ErrRecipeAlreadyExists
 	}
 
 	newRecipe.UserID = userId
