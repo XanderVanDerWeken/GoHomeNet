@@ -22,21 +22,39 @@ func NewRecipeHandler(service Service, userSerivce users.Service) *RecipeHandler
 }
 
 func (h *RecipeHandler) PostNewRecipe(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Title        string                `json:"title"`
-		Username     string                `json:"author"`
-		Description  string                `json:"description"`
-		Ingredients  []RecipeIngredientDto `json:"ingredients"`
-		Instructions []RecipeStepDto       `json:"instructions"`
-	}
+	var dto NewRecipeDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		log.Println("Error decoding recipe creation request:", err)
 		return
 	}
 
-	if err := h.service.CreateRecipe(dto.Username, dto.Title); err != nil {
-		writeError(w, err)
+	ingredients := make([]RecipeIngredient, 0, len(dto.Ingredients))
+	for _, ingredientDto := range dto.Ingredients {
+		ingredients = append(ingredients, RecipeIngredient{
+			Ingredient: ingredientDto.Ingredient,
+			Amount:     ingredientDto.Amount,
+			Unit:       ingredientDto.Unit,
+		})
+	}
+
+	instructions := make([]RecipeStep, 0, len(dto.Instructions))
+	for _, stepDto := range dto.Instructions {
+		instructions = append(instructions, RecipeStep{
+			Text: stepDto.Text,
+			Time: stepDto.Time,
+		})
+	}
+
+	newRecipe := &Recipe{
+		Title:        dto.Title,
+		Description:  dto.Description,
+		Ingredients:  ingredients,
+		Instructions: instructions,
+	}
+
+	if err := h.service.CreateRecipe(dto.Username, newRecipe); err != nil {
+		shared.WriteError(w, err)
 		log.Println("Error creating recipe:", err)
 		return
 	}
@@ -60,7 +78,7 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -69,7 +87,7 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 	for _, recipe := range recipes {
 		user, err := h.userService.GetUserByUserId(recipe.UserID)
 		if err != nil {
-			writeError(w, err)
+			shared.WriteError(w, err)
 			return
 		}
 
@@ -102,15 +120,7 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(recipeDtos); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if appErr, ok := err.(*shared.AppError); ok {
-		http.Error(w, appErr.Message, appErr.Status)
-		return
-	}
-	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }

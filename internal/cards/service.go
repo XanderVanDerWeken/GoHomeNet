@@ -3,6 +3,7 @@ package cards
 import (
 	"time"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
@@ -25,7 +26,7 @@ func (s *service) AddCard(username, name string, expiresAt time.Time) error {
 	userId, err := s.userRepository.GetUserIdByUsername(username)
 
 	if err != nil {
-		return err
+		return shared.ErrUserNotFound
 	}
 
 	return s.repository.AddCard(userId, name, expiresAt)

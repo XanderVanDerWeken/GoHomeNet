@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
@@ -22,19 +21,14 @@ func NewChoreHandler(service Service, userService users.Service) *ChoreHandler {
 }
 
 func (h *ChoreHandler) PostNewChore(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Username string    `json:"username"`
-		Title    string    `json:"title"`
-		Notes    string    `json:"notes"`
-		DueDate  time.Time `json:"dueDate"`
-	}
+	var dto NewChoreDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
 	if err := h.service.CreateChore(dto.Username, dto.Title, dto.Notes, &dto.DueDate); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -54,7 +48,7 @@ func (h *ChoreHandler) GetChores(w http.ResponseWriter, r *http.Request) {
 		chores = h.service.GetAllChores()
 	}
 	if err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -65,7 +59,7 @@ func (h *ChoreHandler) GetChores(w http.ResponseWriter, r *http.Request) {
 		if uName == "" {
 			user, err := h.userService.GetUserByUserId(chore.UserID)
 			if err != nil {
-				writeError(w, err)
+				shared.WriteError(w, err)
 				return
 			}
 			uName = user.Username
@@ -83,7 +77,7 @@ func (h *ChoreHandler) GetChores(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(choreDtos); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 }
@@ -93,13 +87,13 @@ func (h *ChoreHandler) PutChoreComplete(w http.ResponseWriter, r *http.Request) 
 
 	u64, err := strconv.ParseUint(choreId, 10, 32)
 	if err != nil {
-		writeError(w, fmt.Errorf("invalid chore id: %w", err))
+		shared.WriteError(w, fmt.Errorf("invalid chore id: %w", err))
 		return
 	}
 
 	err = h.service.CompleteChore(uint(u64))
 	if err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -111,23 +105,15 @@ func (h *ChoreHandler) DeleteChore(w http.ResponseWriter, r *http.Request) {
 
 	u64, err := strconv.ParseUint(choreId, 10, 32)
 	if err != nil {
-		writeError(w, fmt.Errorf("invalid chore id: %w", err))
+		shared.WriteError(w, fmt.Errorf("invalid chore id: %w", err))
 		return
 	}
 
 	err = h.service.DeleteChore(uint(u64))
 	if err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if appErr, ok := err.(*shared.AppError); ok {
-		http.Error(w, appErr.Message, appErr.Status)
-		return
-	}
-	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }

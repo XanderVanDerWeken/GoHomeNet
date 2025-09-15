@@ -3,7 +3,6 @@ package cards
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
@@ -19,13 +18,9 @@ func NewCardHandler(service Service, userService users.Service) *CardHandler {
 }
 
 func (h *CardHandler) PostNewCard(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Username  string    `json:"username"`
-		Name      string    `json:"name"`
-		ExpiresAt time.Time `json:"expiresAt"`
-	}
+	var dto NewCardDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		writeError(w, shared.ErrBadRequest)
+		shared.WriteError(w, shared.ErrBadRequest)
 		return
 	}
 
@@ -45,7 +40,7 @@ func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
 		cards = h.service.GetAllCards()
 	}
 	if err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -56,7 +51,7 @@ func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
 		if uName == "" {
 			user, err := h.userService.GetUserByUserId(card.UserID)
 			if err != nil {
-				writeError(w, err)
+				shared.WriteError(w, err)
 				return
 			}
 			uName = user.Username
@@ -72,15 +67,7 @@ func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(cardDtos); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if appErr, ok := err.(*shared.AppError); ok {
-		http.Error(w, appErr.Message, appErr.Status)
-		return
-	}
-	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }

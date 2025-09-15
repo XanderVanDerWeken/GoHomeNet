@@ -16,8 +16,8 @@ type Recipe struct {
 	Title       string `gorm:"not null"`
 	Description string `gorm:"not null"`
 
-	Ingredients  []RecipeIngredient
-	Instructions []RecipeStep
+	Ingredients  []RecipeIngredient `gorm:"foreignKey:RecipeID"`
+	Instructions []RecipeStep       `gorm:"foreignKey:RecipeID"`
 }
 
 type RecipeIngredient struct {
@@ -31,7 +31,7 @@ type RecipeIngredient struct {
 
 type RecipeStep struct {
 	ID       uint `gorm:"primaryKey"`
-	RecipeId uint `gorm:"index; not null"`
+	RecipeID uint `gorm:"index; not null"`
 
 	Text string `gorm:"not null"`
 	Time string `gorm:"not null"`

@@ -3,7 +3,7 @@ package recipes
 import "gorm.io/gorm"
 
 type Repository interface {
-	CreateRecipe(userId uint, title string) error
+	CreateRecipe(newRecipe *Recipe) error
 	GetAllRecipes() []Recipe
 	GetRecipeWithTitle(title string) (*Recipe, error)
 }
@@ -16,13 +16,9 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) CreateRecipe(userId uint, title string) error {
-	recipe := Recipe{
-		UserID: userId,
-		Title:  title,
-	}
+func (r *repository) CreateRecipe(newRecipe *Recipe) error {
 
-	if err := r.db.Create(&recipe).Error; err != nil {
+	if err := r.db.Create(newRecipe).Error; err != nil {
 		return err
 	}
 
@@ -32,7 +28,10 @@ func (r *repository) CreateRecipe(userId uint, title string) error {
 func (r *repository) GetAllRecipes() []Recipe {
 	var recipes []Recipe
 
-	r.db.Find(&recipes)
+	r.db.
+		Preload("Ingredients").
+		Preload("Instructions").
+		Find(&recipes)
 
 	return recipes
 }

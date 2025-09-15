@@ -3,6 +3,7 @@ package chores
 import (
 	"time"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
@@ -27,7 +28,7 @@ func (s *service) CreateChore(username, title, notes string, dueDate *time.Time)
 	userId, err := s.userRepository.GetUserIdByUsername(username)
 
 	if err != nil {
-		return err
+		return shared.ErrUserNotFound
 	}
 
 	return s.repository.CreateChore(userId, title, notes, dueDate)

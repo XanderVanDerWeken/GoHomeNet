@@ -16,16 +16,14 @@ func NewFinanceHandler(service Service) *FinanceHandler {
 }
 
 func (h *FinanceHandler) PostNewCategory(w http.ResponseWriter, r *http.Request) {
-	var dto struct {
-		Name string `json:"name"`
-	}
+	var dto NewCategoryDto
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
 	if err := h.service.CreateCategory(dto.Name); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
 
@@ -46,15 +44,7 @@ func (h *FinanceHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(categoryDtos); err != nil {
-		writeError(w, err)
+		shared.WriteError(w, err)
 		return
 	}
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if appErr, ok := err.(*shared.AppError); ok {
-		http.Error(w, appErr.Message, appErr.Status)
-		return
-	}
-	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }
