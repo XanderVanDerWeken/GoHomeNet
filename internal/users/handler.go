@@ -19,18 +19,10 @@ func (h *UserHandler) PostSignupUser(w http.ResponseWriter, r *http.Request) {
 		LastName  string `json:"lastName"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		writeError(w, shared.ErrBadRequest)
+		shared.WriteError(w, shared.ErrBadRequest)
 		return
 	}
 
 	h.service.SignUpUser(dto.Username, dto.Password, dto.FirstName, dto.LastName)
 	w.WriteHeader(http.StatusCreated)
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if appErr, ok := err.(*shared.AppError); ok {
-		http.Error(w, appErr.Message, appErr.Status)
-		return
-	}
-	http.Error(w, shared.ErrInternal.Message, shared.ErrInternal.Status)
 }

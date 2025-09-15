@@ -25,4 +25,6 @@ var (
 	ErrBadRequest   = NewAppError("BAD_REQUEST", "invalid request", http.StatusBadRequest)
 	ErrInternal     = NewAppError("INTERNAL", "internal server error", http.StatusInternalServerError)
 	ErrUnauthorized = NewAppError("UNAUTHORIZED", "Unauthorized request", http.StatusUnauthorized)
+
+	ErrUserNotFound = NewAppError("USER_NOT_FOUND", "user not found", http.StatusNotFound)
 )
