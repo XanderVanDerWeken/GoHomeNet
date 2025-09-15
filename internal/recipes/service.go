@@ -20,11 +20,15 @@ type service struct {
 }
 
 func NewService(repo Repository, userRepo users.Repository, eventBus *events.EventBus) Service {
-	return &service{
+	s := &service{
 		repo:     repo,
 		userRepo: userRepo,
 		eventBus: eventBus,
 	}
+
+	eventBus.Register("NewRecipeEvent", s.HandleRecipeCreated)
+
+	return s
 }
 
 func (s *service) CreateRecipe(username string, newRecipe *Recipe) error {

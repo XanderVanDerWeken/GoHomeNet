@@ -57,25 +57,19 @@ func New() *Container {
 	// Add Cards Module
 	cardRepo := cards.NewRepository(db)
 	cardSvc := cards.NewService(cardRepo, userRepo, eventBus)
-	eventBus.Register("NewCardEvent", cardSvc.HandleNewCardEvent)
 
 	// Add Chores Module
 	choreRepo := chores.NewRepository(db)
 	choreSvc := chores.NewService(choreRepo, userRepo, eventBus)
-	eventBus.Register("NewChoreEvent", choreSvc.HandleNewChoreEvent)
-	eventBus.Register("CompletedChoreEvent", choreSvc.HandleCompletedChoreEvent)
 
 	// Add Finances Module
 	transactionRepo := finances.NewTransactionRepository(db)
 	categoryRepo := finances.NewCategoryRepository(db)
 	financesSvc := finances.NewService(transactionRepo, categoryRepo, eventBus)
-	eventBus.Register("NewCategoryEvent", financesSvc.HandleNewCategoryEvent)
-	eventBus.Register("NewTransactionEvent", financesSvc.HandleNewTransactionEvent)
 
 	// Add Recipe Module
 	recipeRepo := recipes.NewRepository(db)
 	recipeSvc := recipes.NewService(recipeRepo, userRepo, eventBus)
-	eventBus.Register("NewRecipeEvent", recipeSvc.HandleRecipeCreated)
 
 	return &Container{
 		DB: db,

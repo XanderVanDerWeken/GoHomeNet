@@ -22,11 +22,16 @@ type service struct {
 }
 
 func NewService(transactionRepo TransactionRepository, categoryRepo CategoryRepository, eventBus *events.EventBus) Service {
-	return &service{
+	s := &service{
 		transactionRepo: transactionRepo,
 		categoryRepo:    categoryRepo,
 		eventBus:        eventBus,
 	}
+
+	eventBus.Register("NewCategoryEvent", s.HandleNewCategoryEvent)
+	eventBus.Register("NewTransactionEvent", s.HandleNewTransactionEvent)
+
+	return s
 }
 
 func (s *service) CreateCategory(newCategory *Category) error {
