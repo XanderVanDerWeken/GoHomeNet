@@ -57,11 +57,13 @@ func New() *Container {
 	// Add Cards Module
 	cardRepo := cards.NewRepository(db)
 	cardSvc := cards.NewService(cardRepo, userRepo, eventBus)
-	eventBus.Register("NewCardEvent", cardSvc.HandleCardEvents)
+	eventBus.Register("NewCardEvent", cardSvc.HandleNewCardEvent)
 
 	// Add Chores Module
 	choreRepo := chores.NewRepository(db)
-	choreSvc := chores.NewService(choreRepo, userRepo)
+	choreSvc := chores.NewService(choreRepo, userRepo, eventBus)
+	eventBus.Register("NewChoreEvent", choreSvc.HandleNewChoreEvent)
+	eventBus.Register("CompletedChoreEvent", choreSvc.HandleCompletedChoreEvent)
 
 	// Add Finances Module
 	transactionRepo := finances.NewTransactionRepository(db)
