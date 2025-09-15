@@ -24,11 +24,16 @@ type service struct {
 }
 
 func NewService(repo Repository, userRepo users.Repository, eventBus *events.EventBus) Service {
-	return &service{
+	s := &service{
 		repo:     repo,
 		userRepo: userRepo,
 		eventBus: eventBus,
 	}
+
+	eventBus.Register("NewChoreEvent", s.HandleNewChoreEvent)
+	eventBus.Register("CompletedChoreEvent", s.HandleCompletedChoreEvent)
+
+	return s
 }
 
 func (s *service) CreateChore(username string, newChore *Chore) error {
