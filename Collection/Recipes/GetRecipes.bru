@@ -1,0 +1,15 @@
+meta {
+  name: GetRecipes
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/api/recipes
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

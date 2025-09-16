@@ -1,0 +1,40 @@
+meta {
+  name: Post Recipe
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/recipes
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Cookies",
+    "description": "COookkiIIeesss!!!",
+    "author": "admin",
+    "ingredients": [
+      {
+        "ingredient": "Cookies von JA",
+        "amount": 1,
+        "unit": "Packung"
+      }
+    ],
+    "instructions": [
+      {
+        "text": "Packung öffnen",
+        "time": "10s"
+      },
+      {
+        "text": "Keks essen",
+        "time": "5s"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+}
