@@ -40,6 +40,8 @@ func (r *repository) GetRecipeWithTitle(title string) (*Recipe, error) {
 	var recipe Recipe
 	err := r.db.
 		Where("title = ?", title).
+		Preload("Ingredients").
+		Preload("Instructions").
 		First(&recipe).Error
 
 	if err != nil {
