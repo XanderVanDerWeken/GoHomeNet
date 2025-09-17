@@ -7,5 +7,5 @@ import (
 func Routes(router chi.Router, service Service) {
 	handler := NewUserHandler(service)
 
-	router.Post("/signup", handler.PostSignupUser)
+	router.Get("/{username}", handler.GetUserByUsername)
 }

@@ -7,7 +7,7 @@ import (
 type Repository interface {
 	AddCard(newCard *Card) error
 	GetAllCards() []Card
-	GetAllOwnCards(username string) ([]Card, error)
+	GetAllCardsWithUsername(username string) ([]Card, error)
 }
 
 type repository struct {
@@ -33,7 +33,7 @@ func (r *repository) GetAllCards() []Card {
 	return cards
 }
 
-func (r *repository) GetAllOwnCards(username string) ([]Card, error) {
+func (r *repository) GetAllCardsWithUsername(username string) ([]Card, error) {
 	var cards []Card
 
 	err := r.db.

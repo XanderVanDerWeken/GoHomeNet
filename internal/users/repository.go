@@ -1,11 +1,15 @@
 package users
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Repository interface {
-	SaveUser(username, password, firstName, lastName string) error
+	SaveUser(newUser *User) error
 	GetUserIdByUsername(username string) (uint, error)
+	GetUserByUsername(username string) (*User, error)
 	GetUserByUserId(userId uint) (*User, error)
+	CheckUserCredentials(username, password string) bool
 }
 
 type repository struct {
@@ -16,15 +20,8 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) SaveUser(username, password, firstName, lastName string) error {
-	user := User{
-		Username:  username,
-		Password:  password,
-		FirstName: firstName,
-		LastName:  lastName,
-	}
-
-	if err := r.db.Create(&user).Error; err != nil {
+func (r *repository) SaveUser(newUser *User) error {
+	if err := r.db.Create(newUser).Error; err != nil {
 		return err
 	}
 
@@ -32,8 +29,7 @@ func (r *repository) SaveUser(username, password, firstName, lastName string) er
 }
 
 func (r *repository) GetUserIdByUsername(username string) (uint, error) {
-	var user User
-	err := r.db.Where("username = ?", username).First(&user).Error
+	user, err := r.GetUserByUsername(username)
 
 	if err != nil {
 		return 0, err
@@ -42,11 +38,29 @@ func (r *repository) GetUserIdByUsername(username string) (uint, error) {
 	return user.ID, nil
 }
 
-func (r *repository) GetUserByUserId(userId uint) (*User, error) {
+func (r *repository) GetUserByUsername(username string) (*User, error) {
 	var user User
-	if err := r.db.Find(&user, userId).Error; err != nil {
-		return nil, err
+	err := r.db.Where("username = ?", username).First(&user).Error
+
+	if err != nil {
+		return nil, ErrUserNotFound
 	}
 
 	return &user, nil
+}
+
+func (r *repository) GetUserByUserId(userId uint) (*User, error) {
+	var user User
+	if err := r.db.Find(&user, userId).Error; err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return &user, nil
+}
+
+func (r *repository) CheckUserCredentials(username, password string) bool {
+	var user *User
+	err := r.db.Where("username = ? AND password = ?", username, password).First(&user).Error
+
+	return user != nil && err == nil
 }
