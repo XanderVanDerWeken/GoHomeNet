@@ -9,7 +9,7 @@ import (
 type Service interface {
 	AddCard(username string, newCard *Card) error
 	GetAllCards() []Card
-	GetAllOwnCards(username string) ([]Card, error)
+	GetAllCardsWithUsername(username string) ([]Card, error)
 	HandleNewCardEvent(e events.Event)
 }
 
@@ -50,8 +50,8 @@ func (s *service) GetAllCards() []Card {
 	return s.repo.GetAllCards()
 }
 
-func (s *service) GetAllOwnCards(username string) ([]Card, error) {
-	return s.repo.GetAllOwnCards(username)
+func (s *service) GetAllCardsWithUsername(username string) ([]Card, error) {
+	return s.repo.GetAllCardsWithUsername(username)
 }
 
 func (s *service) HandleNewCardEvent(e events.Event) {

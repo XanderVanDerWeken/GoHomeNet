@@ -55,12 +55,7 @@ func TestGetAllRecipes(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewRepository(db)
 
-	var err error
-	err = repo.CreateRecipe(&recipe1)
-	require.NoError(t, err)
-
-	err = repo.CreateRecipe(&recipe2)
-	require.NoError(t, err)
+	setupRecipes(t, repo)
 
 	// Act
 	recipes := repo.GetAllRecipes()
@@ -84,12 +79,7 @@ func TestGetRecipeWithTitle(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewRepository(db)
 
-	var err error
-	err = repo.CreateRecipe(&recipe1)
-	require.NoError(t, err)
-
-	err = repo.CreateRecipe(&recipe2)
-	require.NoError(t, err)
+	setupRecipes(t, repo)
 
 	// Act
 	foundRecipe1, err1 := repo.GetRecipeWithTitle(recipe1.Title)
@@ -116,10 +106,19 @@ func TestGetRecipeWithTitle(t *testing.T) {
 }
 
 func setupTestDB(t *testing.T) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	require.NoError(t, err)
 
 	err = db.AutoMigrate(&users.User{}, &Recipe{}, &RecipeStep{}, &RecipeIngredient{})
 	require.NoError(t, err)
 	return db
+}
+
+func setupRecipes(t *testing.T, repo Repository) {
+	var err error
+	err = repo.CreateRecipe(&recipe1)
+	require.NoError(t, err)
+
+	err = repo.CreateRecipe(&recipe2)
+	require.NoError(t, err)
 }
