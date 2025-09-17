@@ -1,9 +1,12 @@
 package recipes
 
 import (
+	"errors"
+
 	"github.com/xandervanderweken/GoHomeNet/internal/events"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
+	"gorm.io/gorm"
 )
 
 type Service interface {
@@ -39,9 +42,7 @@ func (s *service) CreateRecipe(username string, newRecipe *Recipe) error {
 		return shared.ErrUserNotFound
 	}
 
-	if foundRecipe, err := s.repo.GetRecipeWithTitle(newRecipe.Title); err != nil {
-		return err
-	} else if foundRecipe != nil {
+	if _, err := s.repo.GetRecipeWithTitle(newRecipe.Title); !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrRecipeAlreadyExists
 	}
 
