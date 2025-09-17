@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
@@ -37,15 +36,12 @@ func (h *AuthHandler) PostSignupUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-		Value:    *token,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Path:     "/",
-	})
-
-	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(AuthDto{Token: *token}); err != nil {
+		shared.WriteError(w, err)
+		return
+	}
 }
 
 func (h *AuthHandler) PostLoginUser(w http.ResponseWriter, r *http.Request) {
@@ -61,13 +57,10 @@ func (h *AuthHandler) PostLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-		Value:    *token,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Path:     "/",
-	})
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(AuthDto{Token: *token}); err != nil {
+		shared.WriteError(w, err)
+		return
+	}
 }
