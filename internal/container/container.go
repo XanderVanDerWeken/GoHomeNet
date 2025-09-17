@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/xandervanderweken/GoHomeNet/internal/auth"
 	"github.com/xandervanderweken/GoHomeNet/internal/cards"
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/config"
@@ -19,6 +20,8 @@ type Container struct {
 
 	UserRepo users.Repository
 	UserSvc  users.Service
+
+	AuthSvc auth.Service
 
 	CardsRepo cards.Repository
 	CardsSvc  cards.Service
@@ -52,7 +55,10 @@ func New() *Container {
 
 	// Add Users Module
 	userRepo := users.NewRepository(db)
-	userService := users.NewService(userRepo)
+	userSvc := users.NewService(userRepo)
+
+	// Add Auth Module
+	authSvc := auth.NewService(userRepo)
 
 	// Add Cards Module
 	cardRepo := cards.NewRepository(db)
@@ -77,7 +83,9 @@ func New() *Container {
 		EventBus: eventBus,
 
 		UserRepo: userRepo,
-		UserSvc:  userService,
+		UserSvc:  userSvc,
+
+		AuthSvc: authSvc,
 
 		CardsRepo: cardRepo,
 		CardsSvc:  cardSvc,

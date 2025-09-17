@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/xandervanderweken/GoHomeNet/internal/auth"
 	"github.com/xandervanderweken/GoHomeNet/internal/cards"
 	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/container"
@@ -28,6 +29,10 @@ func NewRouter(c *container.Container) *chi.Mux {
 
 		apiRouter.Route("/recipes", func(r chi.Router) {
 			recipes.Routes(r, c.RecipeSvc, c.UserSvc)
+		})
+
+		apiRouter.Route("/auth", func(r chi.Router) {
+			auth.Routes(r, c.UserSvc)
 		})
 
 		apiRouter.Route("/users", func(r chi.Router) {
