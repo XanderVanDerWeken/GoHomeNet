@@ -39,7 +39,7 @@ func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if username != "" {
-		cards, err = h.service.GetAllOwnCards(username)
+		cards, err = h.service.GetAllCardsWithUsername(username)
 	} else {
 		cards = h.service.GetAllCards()
 	}
