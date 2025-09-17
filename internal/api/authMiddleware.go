@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/auth"
+	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 )
 
 type contextKey string
@@ -16,20 +17,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
+			shared.WriteError(w, auth.ErrMissingHeader)
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
+			shared.WriteError(w, auth.ErrWrongHeaderFormat)
 			return
 		}
 		tokenStr := parts[1]
 
 		claims, err := auth.ParseToken(tokenStr)
 		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			shared.WriteError(w, auth.ErrInvalidToken)
 			return
 		}
 
