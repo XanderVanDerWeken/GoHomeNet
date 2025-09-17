@@ -47,7 +47,7 @@ func (r *repository) GetUserByUsername(username string) (*User, error) {
 	err := r.db.Where("username = ?", username).First(&user).Error
 
 	if err != nil {
-		return nil, err
+		return nil, ErrUserNotFound
 	}
 
 	return &user, nil
@@ -56,7 +56,7 @@ func (r *repository) GetUserByUsername(username string) (*User, error) {
 func (r *repository) GetUserByUserId(userId uint) (*User, error) {
 	var user User
 	if err := r.db.Find(&user, userId).Error; err != nil {
-		return nil, err
+		return nil, ErrUserNotFound
 	}
 
 	return &user, nil
