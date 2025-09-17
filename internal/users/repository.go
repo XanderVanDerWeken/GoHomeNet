@@ -1,12 +1,15 @@
 package users
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Repository interface {
 	SaveUser(newUser *User) error
 	GetUserIdByUsername(username string) (uint, error)
 	GetUserByUsername(username string) (*User, error)
 	GetUserByUserId(userId uint) (*User, error)
+	CheckUserCredentials(username, password string) bool
 }
 
 type repository struct {
@@ -53,4 +56,11 @@ func (r *repository) GetUserByUserId(userId uint) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *repository) CheckUserCredentials(username, password string) bool {
+	var user *User
+	err := r.db.Where("username = ? AND password = ?", username, password).First(&user).Error
+
+	return user != nil && err == nil
 }
