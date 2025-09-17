@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
+	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type AuthHandler struct {
@@ -22,6 +23,13 @@ func (h *AuthHandler) PostSignupUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.service.SignUpUser(dto.Username, dto.Password, dto.FirstName, dto.LastName)
+	newUser := &users.User{
+		Username:  dto.Username,
+		Password:  dto.Password,
+		FirstName: dto.FirstName,
+		LastName:  dto.LastName,
+	}
+
+	h.service.SignUpUser(newUser)
 	w.WriteHeader(http.StatusCreated)
 }

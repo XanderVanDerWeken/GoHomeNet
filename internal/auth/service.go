@@ -10,7 +10,7 @@ import (
 var jwtKey = []byte("my_secret")
 
 type Service interface {
-	SignUpUser(username, password, firstName, lastName string) error
+	SignUpUser(newUser *users.User) error
 }
 
 type service struct {
@@ -21,8 +21,8 @@ func NewService(repository users.Repository) Service {
 	return &service{repository: repository}
 }
 
-func (s *service) SignUpUser(username, password, firstName, lastName string) error {
-	return s.repository.SaveUser(username, password, firstName, lastName)
+func (s *service) SignUpUser(newUser *users.User) error {
+	return s.repository.SaveUser(newUser)
 }
 
 func (s *service) GenerateToken(username string, roles []string) (string, error) {
