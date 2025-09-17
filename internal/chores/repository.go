@@ -8,6 +8,7 @@ type Repository interface {
 	CreateChore(newChore *Chore) error
 	GetAllChores() []Chore
 	GetChoresByUsername(username string) ([]Chore, error)
+	GetChoreById(choreID uint) (*Chore, error)
 	CompleteChore(choreID uint) error
 	DeleteChore(choreID uint) error
 }
@@ -45,6 +46,15 @@ func (r *repository) GetChoresByUsername(username string) ([]Chore, error) {
 		Find(&chores).Error
 
 	return chores, err
+}
+
+func (r *repository) GetChoreById(choreID uint) (*Chore, error) {
+	var chore Chore
+	if err := r.db.First(&chore, choreID).Error; err != nil {
+		return nil, err
+	}
+
+	return &chore, nil
 }
 
 func (r *repository) CompleteChore(choreID uint) error {
