@@ -32,7 +32,7 @@ func NewRouter(c *container.Container) *chi.Mux {
 		})
 
 		apiRouter.Route("/auth", func(r chi.Router) {
-			auth.Routes(r, c.UserSvc)
+			auth.Routes(r, c.AuthSvc)
 		})
 
 		apiRouter.Route("/users", func(r chi.Router) {

@@ -5,5 +5,7 @@ import (
 )
 
 func Routes(router chi.Router, service Service) {
-	//handler := NewUserHandler(service)
+	handler := NewUserHandler(service)
+
+	router.Get("/{username}", handler.GetUserByUsername)
 }

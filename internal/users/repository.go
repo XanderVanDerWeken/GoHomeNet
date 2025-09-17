@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 type Repository interface {
 	SaveUser(username, password, firstName, lastName string) error
 	GetUserIdByUsername(username string) (uint, error)
+	GetUserByUsername(username string) (*User, error)
 	GetUserByUserId(userId uint) (*User, error)
 }
 
@@ -32,14 +33,24 @@ func (r *repository) SaveUser(username, password, firstName, lastName string) er
 }
 
 func (r *repository) GetUserIdByUsername(username string) (uint, error) {
-	var user User
-	err := r.db.Where("username = ?", username).First(&user).Error
+	user, err := r.GetUserByUsername(username)
 
 	if err != nil {
 		return 0, err
 	}
 
 	return user.ID, nil
+}
+
+func (r *repository) GetUserByUsername(username string) (*User, error) {
+	var user User
+	err := r.db.Where("username = ?", username).First(&user).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (r *repository) GetUserByUserId(userId uint) (*User, error) {
