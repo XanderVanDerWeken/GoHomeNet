@@ -61,7 +61,7 @@ func (s *service) generateToken(username string, roles []string) (string, error)
 	return token.SignedString(jwtKey)
 }
 
-func (s *service) parseToken(tokenStr string) (*Claims, error) {
+func ParseToken(tokenStr string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (any, error) {
 		return jwtKey, nil

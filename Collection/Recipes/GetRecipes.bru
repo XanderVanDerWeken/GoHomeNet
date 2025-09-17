@@ -7,7 +7,11 @@ meta {
 get {
   url: {{base_url}}/api/recipes
   body: none
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOltdLCJleHAiOjE3NTgyMjE0MzcsImlhdCI6MTc1ODEzNTAzN30.8Iq9NYDpgHGisR82iCzpxQNy0Y0eResq7kAPBBEt9L4
 }
 
 settings {
