@@ -14,7 +14,8 @@ import (
 )
 
 type Container struct {
-	DB *gorm.DB
+	DB    *gorm.DB
+	Cache *gorm.DB
 
 	EventBus *events.EventBus
 
@@ -39,6 +40,7 @@ func New() *Container {
 		&finances.Transaction{}, &finances.Category{},
 		&recipes.Recipe{}, &recipes.RecipeIngredient{}, &recipes.RecipeStep{},
 	)
+	cache := database.ConnectCache()
 
 	eventBus := events.NewEventBus()
 
@@ -61,7 +63,8 @@ func New() *Container {
 	recipeModule := recipes.RegisterModule(db, eventBus, *userModule.Repo)
 
 	return &Container{
-		DB: db,
+		DB:    db,
+		Cache: cache,
 
 		EventBus: eventBus,
 
