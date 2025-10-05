@@ -10,5 +10,6 @@ database:
   max_connection_lifetime_in_minutes: 30
 cache:
   path: cache.sqlite
+  ttl: 24
 server:
   port: 8080

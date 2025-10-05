@@ -26,6 +26,7 @@ type DatabaseConfig struct {
 
 type CacheConfig struct {
 	Path string
+	TTL  int
 }
 
 type ServerConfig struct {
