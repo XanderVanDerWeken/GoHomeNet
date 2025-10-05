@@ -8,16 +8,24 @@ import (
 
 type Config struct {
 	Database DatabaseConfig
+	Cache    CacheConfig
 	Server   ServerConfig
 }
 
 type DatabaseConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	Name     string
-	SSLMode  string
+	Host                           string
+	Port                           int
+	User                           string
+	Password                       string
+	Name                           string
+	SSLMode                        string
+	MaxOpenConnections             int
+	MaxIdleConnections             int
+	MaxConnectionLifetimeInMinutes int
+}
+
+type CacheConfig struct {
+	Path string
 }
 
 type ServerConfig struct {

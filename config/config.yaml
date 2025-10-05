@@ -5,5 +5,10 @@ database:
   password: admin
   name: homenetdb
   ssl_mode: disable
+  max_open_connections: 25
+  max_idle_connections: 10
+  max_connection_lifetime_in_minutes: 30
+cache:
+  path: cache.sqlite
 server:
   port: 8080
