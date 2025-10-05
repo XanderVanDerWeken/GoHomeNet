@@ -39,9 +39,9 @@ func Connect() *gorm.DB {
 			log.Fatalf("failed to get sql.DB: %v", err)
 		}
 
-		sqlDB.SetMaxOpenConns(25)
-		sqlDB.SetMaxIdleConns(10)
-		sqlDB.SetConnMaxLifetime(30 * time.Minute)
+		sqlDB.SetMaxOpenConns(cfg.MaxOpenConnections)
+		sqlDB.SetMaxIdleConns(cfg.MaxIdleConnections)
+		sqlDB.SetConnMaxLifetime(time.Duration(cfg.MaxConnectionLifetimeInMinutes) * time.Minute)
 	})
 
 	return db
