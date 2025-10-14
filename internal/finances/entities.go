@@ -48,3 +48,8 @@ type AggregationResult struct {
 	TotalExpense Money
 	Transactions []AggregatedTransaction
 }
+
+type MonthCache struct {
+	Year  int
+	Month int
+}
