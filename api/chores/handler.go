@@ -7,16 +7,17 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/xandervanderweken/GoHomeNet/internal/chores"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type ChoreHandler struct {
-	service     Service
+	service     chores.Service
 	userService users.Service
 }
 
-func NewChoreHandler(service Service, userService users.Service) *ChoreHandler {
+func NewChoreHandler(service chores.Service, userService users.Service) *ChoreHandler {
 	return &ChoreHandler{service: service, userService: userService}
 }
 
@@ -27,7 +28,7 @@ func (h *ChoreHandler) PostNewChore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newChore := Chore{
+	newChore := chores.Chore{
 		Title:   dto.Title,
 		Notes:   dto.Notes,
 		DueDate: &dto.DueDate,
@@ -44,7 +45,7 @@ func (h *ChoreHandler) GetChores(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	username := q.Get("username")
 
-	var chores []Chore
+	var chores []chores.Chore
 	var err error
 
 	if username != "" {

@@ -5,16 +5,17 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/recipes"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type RecipeHandler struct {
-	service     Service
+	service     recipes.Service
 	userService users.Service
 }
 
-func NewRecipeHandler(service Service, userSerivce users.Service) *RecipeHandler {
+func NewRecipeHandler(service recipes.Service, userSerivce users.Service) *RecipeHandler {
 	return &RecipeHandler{
 		service:     service,
 		userService: userSerivce,
@@ -29,24 +30,24 @@ func (h *RecipeHandler) PostNewRecipe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ingredients := make([]RecipeIngredient, 0, len(dto.Ingredients))
+	ingredients := make([]recipes.RecipeIngredient, 0, len(dto.Ingredients))
 	for _, ingredientDto := range dto.Ingredients {
-		ingredients = append(ingredients, RecipeIngredient{
+		ingredients = append(ingredients, recipes.RecipeIngredient{
 			Ingredient: ingredientDto.Ingredient,
 			Amount:     ingredientDto.Amount,
 			Unit:       ingredientDto.Unit,
 		})
 	}
 
-	instructions := make([]RecipeStep, 0, len(dto.Instructions))
+	instructions := make([]recipes.RecipeStep, 0, len(dto.Instructions))
 	for _, stepDto := range dto.Instructions {
-		instructions = append(instructions, RecipeStep{
+		instructions = append(instructions, recipes.RecipeStep{
 			Text: stepDto.Text,
 			Time: stepDto.Time,
 		})
 	}
 
-	newRecipe := &Recipe{
+	newRecipe := &recipes.Recipe{
 		Title:        dto.Title,
 		Description:  dto.Description,
 		Ingredients:  ingredients,
@@ -66,15 +67,16 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	title := q.Get("title")
 
-	var recipes []Recipe
+	var foundRecipes []recipes.Recipe
 	var err error
 
 	if title != "" {
-		var recipe *Recipe
+
+		var recipe *recipes.Recipe
 		recipe, err = h.service.GetRecipeWithTitle(title)
-		recipes = append(recipes, *recipe)
+		foundRecipes = append(foundRecipes, *recipe)
 	} else {
-		recipes = h.service.GetAllRecipes()
+		foundRecipes = h.service.GetAllRecipes()
 	}
 
 	if err != nil {
@@ -82,9 +84,9 @@ func (h *RecipeHandler) GetRecipes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recipeDtos := make([]RecipeDto, 0, len(recipes))
+	recipeDtos := make([]RecipeDto, 0, len(foundRecipes))
 
-	for _, recipe := range recipes {
+	for _, recipe := range foundRecipes {
 		user, err := h.userService.GetUserByUserId(recipe.UserID)
 		if err != nil {
 			shared.WriteError(w, err)

@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/finances"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 )
 
 type FinanceHandler struct {
-	service Service
+	service finances.Service
 }
 
-func NewFinanceHandler(service Service) *FinanceHandler {
+func NewFinanceHandler(service finances.Service) *FinanceHandler {
 	return &FinanceHandler{service: service}
 }
 
@@ -22,7 +23,7 @@ func (h *FinanceHandler) PostNewCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	newCategory := Category{
+	newCategory := finances.Category{
 		Name: dto.Name,
 	}
 	if err := h.service.CreateCategory(&newCategory); err != nil {

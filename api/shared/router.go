@@ -2,13 +2,13 @@ package api
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/xandervanderweken/GoHomeNet/internal/auth"
-	"github.com/xandervanderweken/GoHomeNet/internal/cards"
-	"github.com/xandervanderweken/GoHomeNet/internal/chores"
+	"github.com/xandervanderweken/GoHomeNet/api/auth"
+	"github.com/xandervanderweken/GoHomeNet/api/cards"
+	"github.com/xandervanderweken/GoHomeNet/api/chores"
+	"github.com/xandervanderweken/GoHomeNet/api/finances"
+	"github.com/xandervanderweken/GoHomeNet/api/recipes"
+	"github.com/xandervanderweken/GoHomeNet/api/users"
 	"github.com/xandervanderweken/GoHomeNet/internal/container"
-	"github.com/xandervanderweken/GoHomeNet/internal/finances"
-	"github.com/xandervanderweken/GoHomeNet/internal/recipes"
-	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 func NewRouter(c *container.Container) *chi.Mux {

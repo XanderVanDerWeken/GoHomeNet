@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/auth"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type AuthHandler struct {
-	service Service
+	service auth.Service
 }
 
-func NewAuthHandler(service Service) *AuthHandler {
+func NewAuthHandler(service auth.Service) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 
