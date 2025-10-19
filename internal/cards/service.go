@@ -10,7 +10,6 @@ type Service interface {
 	AddCard(username string, newCard *Card) error
 	GetAllCards() []Card
 	GetAllCardsWithUsername(username string) ([]Card, error)
-	HandleNewCardEvent(e events.Event)
 }
 
 type service struct {
@@ -20,15 +19,11 @@ type service struct {
 }
 
 func NewService(repo Repository, userRepo users.Repository, eventBus *events.EventBus) Service {
-	s := &service{
+	return &service{
 		repo:     repo,
 		userRepo: userRepo,
 		eventBus: eventBus,
 	}
-
-	eventBus.Register("NewCardEvent", s.HandleNewCardEvent)
-
-	return s
 }
 
 func (s *service) AddCard(username string, newCard *Card) error {
@@ -52,10 +47,4 @@ func (s *service) GetAllCards() []Card {
 
 func (s *service) GetAllCardsWithUsername(username string) ([]Card, error) {
 	return s.repo.GetAllCardsWithUsername(username)
-}
-
-func (s *service) HandleNewCardEvent(e events.Event) {
-	if event, ok := e.(NewCardEvent); ok {
-		s.repo.AddCard(&event.NewCard)
-	}
 }

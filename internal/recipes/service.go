@@ -13,7 +13,6 @@ type Service interface {
 	CreateRecipe(username string, newRecipe *Recipe) error
 	GetAllRecipes() []Recipe
 	GetRecipeWithTitle(title string) (*Recipe, error)
-	HandleRecipeCreated(e events.Event)
 }
 
 type service struct {
@@ -28,8 +27,6 @@ func NewService(repo Repository, userRepo users.Repository, eventBus *events.Eve
 		userRepo: userRepo,
 		eventBus: eventBus,
 	}
-
-	eventBus.Register("NewRecipeEvent", s.HandleRecipeCreated)
 
 	return s
 }
@@ -60,10 +57,4 @@ func (s *service) GetAllRecipes() []Recipe {
 
 func (s *service) GetRecipeWithTitle(title string) (*Recipe, error) {
 	return s.repo.GetRecipeWithTitle(title)
-}
-
-func (s *service) HandleRecipeCreated(e events.Event) {
-	if event, ok := e.(NewRecipeEvent); ok {
-		s.repo.CreateRecipe(&event.Recipe)
-	}
 }

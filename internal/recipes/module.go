@@ -14,6 +14,9 @@ func RegisterModule(db *gorm.DB, eventBus *events.EventBus, userRepo users.Repos
 	repo := NewRepository(db)
 	service := NewService(repo, userRepo, eventBus)
 
+	recipeEventHandler := NewRecipeEventHandler(repo)
+	eventBus.Register("NewRecipeEvent", recipeEventHandler.handleRecipeEvent)
+
 	return &Module{
 		Service: &service,
 	}

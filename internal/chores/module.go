@@ -14,6 +14,10 @@ func RegisterModule(db *gorm.DB, eventBus *events.EventBus, userRepo users.Repos
 	repo := NewRepository(db)
 	service := NewService(repo, userRepo, eventBus)
 
+	choreEventHandler := NewChoreEventHandler(repo)
+	eventBus.Register("NewChoreEvent", choreEventHandler.handleChoreEvent)
+	eventBus.Register("CompletedChoreEvent", choreEventHandler.handleChoreEvent)
+
 	return &Module{
 		Service: &service,
 	}
