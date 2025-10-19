@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/xandervanderweken/GoHomeNet/internal/api"
+	api "github.com/xandervanderweken/GoHomeNet/api/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/container"
 )
 

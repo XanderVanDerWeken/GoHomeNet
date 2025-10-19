@@ -12,9 +12,6 @@ type Service interface {
 	GetChoresByUsername(username string) ([]Chore, error)
 	CompleteChore(choreID uint) error
 	DeleteChore(choreID uint) error
-
-	HandleNewChoreEvent(e events.Event)
-	HandleCompletedChoreEvent(e events.Event)
 }
 
 type service struct {
@@ -29,9 +26,6 @@ func NewService(repo Repository, userRepo users.Repository, eventBus *events.Eve
 		userRepo: userRepo,
 		eventBus: eventBus,
 	}
-
-	eventBus.Register("NewChoreEvent", s.HandleNewChoreEvent)
-	eventBus.Register("CompletedChoreEvent", s.HandleCompletedChoreEvent)
 
 	return s
 }
@@ -65,16 +59,4 @@ func (s *service) CompleteChore(choreID uint) error {
 
 func (s *service) DeleteChore(choreID uint) error {
 	return s.repo.DeleteChore(choreID)
-}
-
-func (s *service) HandleNewChoreEvent(e events.Event) {
-	if event, ok := e.(NewChoreEvent); ok {
-		s.repo.CreateChore(&event.NewChore)
-	}
-}
-
-func (s *service) HandleCompletedChoreEvent(e events.Event) {
-	if event, ok := e.(CompletedChoreEvent); ok {
-		s.repo.CompleteChore(event.ChoreId)
-	}
 }

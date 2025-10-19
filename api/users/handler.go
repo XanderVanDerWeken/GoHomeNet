@@ -6,13 +6,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
+	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type UserHandler struct {
-	service Service
+	service users.Service
 }
 
-func NewUserHandler(service Service) *UserHandler {
+func NewUserHandler(service users.Service) *UserHandler {
 	return &UserHandler{service: service}
 }
 

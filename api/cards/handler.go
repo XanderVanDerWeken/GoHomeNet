@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/xandervanderweken/GoHomeNet/internal/cards"
 	"github.com/xandervanderweken/GoHomeNet/internal/shared"
 	"github.com/xandervanderweken/GoHomeNet/internal/users"
 )
 
 type CardHandler struct {
-	service     Service
+	service     cards.Service
 	userService users.Service
 }
 
-func NewCardHandler(service Service, userService users.Service) *CardHandler {
+func NewCardHandler(service cards.Service, userService users.Service) *CardHandler {
 	return &CardHandler{service: service, userService: userService}
 }
 
@@ -24,7 +25,7 @@ func (h *CardHandler) PostNewCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCard := Card{
+	newCard := cards.Card{
 		Name:      dto.Name,
 		ExpiresAt: dto.ExpiresAt,
 	}
@@ -35,7 +36,7 @@ func (h *CardHandler) GetCards(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	username := q.Get("username")
 
-	var cards []Card
+	var cards []cards.Card
 	var err error
 
 	if username != "" {
